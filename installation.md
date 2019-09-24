@@ -1,38 +1,48 @@
 # Thingworx 8.4
 
 ##Requirements
-1. OS/Platform: Windows Server 2016/2012 R2/ 2008 R2 SP1, Red Hat Enterprise Linux (RHEL) 7.5, Ubuntu 14.04 LTS / 16.04 LTS / 18.04 LTS
-2. Java JDK: Java SE Development Kit 8, Update 92 , 1.8.0_92- b14 (64-bit), OpenJDK not supported
-3. Tomcat : 8.5.42(64- bit), 9.0.21 (64- bit)
-2. Database:    PostgreSQL (9.4.5, 9.5.11,9.6, 10)
-                DataStaxEnterpriseEdition (4.6.3, 5)
-                Microsoft SQL Server (2016)
-                AzureSQL (Azure SQL Logical ServerV12)
-                InfluxDB (1.6.3) #Not supported for use with ThingWorx Flow.
+1. **OS/Platform**: 
+    1. Windows Server 2016/2012 R2/ 2008 R2 SP1
+    2. Red Hat Enterprise Linux (RHEL) 7.5
+    3. Ubuntu 14.04 LTS / 16.04 LTS / 18.04 LTS
+2. **Java JDK**: Java SE Development Kit 8, Update 92 , 1.8.0_92- b14 (64-bit)
+    > OpenJDK not supported
+3. **Tomcat** : 
+    1. 8.5.42 (64- bit)
+    2. 9.0.21 (64- bit)
+2. **Database**:    
+    1. PostgreSQL (9.4.5, 9.5.11,9.6, 10)
+    2. DataStaxEnterpriseEdition (4.6.3, 5)
+    3. Microsoft SQL Server (2016)
+    4. AzureSQL (Azure SQL Logical ServerV12)
+    5. InfluxDB (1.6.3)  `Not supported for use with ThingWorx Flow.`
 
 ## Setting up Ubuntu in VM
 1. Download latest version of Ubuntu from respective website. [Dwonload (1.9 GiB)](http://releases.ubuntu.com/18.04/ubuntu-18.04.3-desktop-amd64.iso)
 2. Start Oracle VM VirtualBox. (In ITC can be installed from Software Center)
 3. Install UBUNTU to the VM. Can follow [this](https://www.wikihow.com/Install-Ubuntu-on-VirtualBox) guide.
 
-## Setup Java and Tomcat in Ubuntu
+## Download and Setup Oracle JDK
 
-`$sudo apt-get update`
-`$sudo apt-get install ntp #Network Time Protocol (NTP) settings for time synchronization`
-`$sudo apt-get install authbind #AUTHBIND properties to allow Tomcat to bind to ports below 1024`
+> `ntp` is installed for time sunchronization whereas authbind 
+```
+$sudo apt-get update
+$sudo apt-get install ntp #Network Time Protocol (NTP) settings for time synchronization
+$sudo apt-get install authbind #AUTHBIND properties to allow Tomcat to bind to ports below 1024
+```
 
 Download JAVA JDK from Oracle's official website. OpenJDK is not supported.
-`$wget -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz`
 
-Unzip downloaded .tar.gz file 
-
-`$tar -xf jdk-8u131-linux-x64.tar.gz`
-
+```
+$wget -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+$tar -xf jdk-8u131-linux-x64.tar.gz
 sudo mkdir -p /usr/lib/jvm
 sudo mv jdk1.8.0_131/ /usr/lib/jvm/
+```
+
+```
 sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk1.8.0_131/bin/java" 1
 sudo update-alternatives --install "/usr/bin/keytool" "keytool" "/usr/lib/jvm/jdk1.8.0_131/bin/keytool" 1
-
 
 sudo chmod a+x /usr/bin/java
 sudo chmod a+x /usr/bin/keytool
@@ -41,29 +51,30 @@ sudo chown -R root:root /usr/lib/jvm/jdk1.8.0_131/
 
 sudo update-alternatives --config java
 sudo update-alternatives --config keytool
+```
+> Check installed Java version `$java -version`
 
-Check installed Java version,
-`$java -version`
+### Download and Setup Apache Tomcat
 
-### Install tomcat
-
-Download,
-`$wget http://mirrors.estointernet.in/apache/tomcat/tomcat-8/v8.5.46/bin/apache-tomcat-8.5.46.tar.gz`
-
+```
+$wget http://mirrors.estointernet.in/apache/tomcat/tomcat-8/v8.5.46/bin/apache-tomcat-8.5.46.tar.gz
 tar -xf apache-tomcat-8.5.46.tar.gz
-
 sudo mkdir -p /usr/share/tomcat8.5
 sudo mv apache-tomcat-8.5.46 /usr/share/tomcat8.5/8.5
+```
 
-
+```
 sudo addgroup --system tomcat8.5 --quiet -force-badname
 sudo adduser --system --home /usr/share/tomcat8.5/ --no-create-home --ingroup tomcat8.5 --disabled-password --force-badname --shell /bin/false tomcat8.5
 
 sudo chown -R tomcat8.5:tomcat8.5 /usr/share/tomcat8.5
+```
 
+```
 export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_131
 export CATALINA_HOME=/usr/share/tomcat8.5/8.5
-
+```
+```
 cd $CATALINA_HOME
 sudo chown -Rh tomcat8.5:tomcat8.5 bin/ lib/ webapps/
 sudo chmod 775 bin/ lib/ webapps/
@@ -71,7 +82,7 @@ sudo chown -Rh root:tomcat8.5 conf/
 sudo chmod -R 650 conf/
 sudo chown -R tomcat8.5:adm logs/ temp/ work/
 sudo chmod 760 logs/ temp/ work/
-
+```
 
 ## Setting up SSL
 sudo $JAVA_HOME/bin/keytool -genkey -alias tomcat8.5 -keyalg RSA -keystore $CATALINA_HOME/conf/.keystore
