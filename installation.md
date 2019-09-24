@@ -1,6 +1,6 @@
 # Thingworx 8.4
 
-##Requirements
+## Requirements
 1. **OS/Platform**: 
     1. Windows Server 2016/2012 R2/ 2008 R2 SP1
     2. Red Hat Enterprise Linux (RHEL) 7.5
