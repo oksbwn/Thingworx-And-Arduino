@@ -34,7 +34,7 @@ $sudo apt-get install authbind #AUTHBIND properties to allow Tomcat to bind to p
 Download JAVA JDK from Oracle's official website. OpenJDK is not supported.
 
 ```
-$wget -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+$ wget -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
 $tar -xf jdk-8u131-linux-x64.tar.gz
 sudo mkdir -p /usr/lib/jvm
 sudo mv jdk1.8.0_131/ /usr/lib/jvm/
@@ -74,6 +74,7 @@ sudo chown -R tomcat8.5:tomcat8.5 /usr/share/tomcat8.5
 export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_131
 export CATALINA_HOME=/usr/share/tomcat8.5/8.5
 ```
+
 ```
 cd $CATALINA_HOME
 sudo chown -Rh tomcat8.5:tomcat8.5 bin/ lib/ webapps/
@@ -85,68 +86,107 @@ sudo chmod 760 logs/ temp/ work/
 ```
 
 ## Setting up SSL
+
+```
 sudo $JAVA_HOME/bin/keytool -genkey -alias tomcat8.5 -keyalg RSA -keystore $CATALINA_HOME/conf/.keystore
+```
 > Keystore password: thingworxptc
 
+```shell
 sudo chown root:tomcat8.5 $CATALINA_HOME/conf/.keystore
 sudo chmod 640 $CATALINA_HOME/conf/.keystore
+```
 
-## Uncomment the Manager element in context.xml to prevent sessions from persisting across restarts:
+Uncomment the Manager element in `context.xml` to prevent sessions from persisting across restarts:
+
+```shell
+$sudo nano conf/context.xml
+```
+uncomment,
+
+```xml
 <Manager pathname="" />
+```
 
-sudo nano conf/context.xml
-
-## Comment in server.xml
+```shell
+sudo nano $CATALINA_HOME/conf/server.xml
+```
+Comment,
+```xml
 <!--
 <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
---> 
-sudo nano $CATALINA_HOME/conf/server.xml
+-->
+```
 and add the code below
+
+```xml
 <Connector port="443" protocol="org.apache.coyote.http11.Http11NioProtocol"
 maxThreads="150" SSLEnabled="true" scheme="https" secure="true"
 keystoreFile="${user.home}/8.5/conf/.keystore" keystorePass="thingworxptc" 
 clientAuth="false" sslProtocol="TLS" />
+```
 
-### If you receive an error that the directory doesn’t exist, use the following
-commands to ensure port 443 works:
+> If you receive an error that the directory doesn’t exist, use the following commands to ensure port 443 works:
+
+```
 sudo touch /etc/authbind/byport/443
 sudo chmod 700 /etc/authbind/byport/443
 sudo chown tomcat8.5:tomcat8.5 /etc/authbind/byport/443
+```
 
 ## Create a tomcat user
 
+```
 sudo nano $CATALINA_HOME/conf/tomcat-users.xml
+```
+
 Add the following line,
 
+```xml
 <user username="bikash" password="password" roles="manager"/>
+```
 
-## Determine uid of tomcat8.5 user:
+Determine uid of tomcat8.5 user:
+
+```
 $ id -u tomcat8.5
+```
 Using this number, create an ID file in /etc/authbind/byuid/:
-Note
-Change the <uid> to the number that was returned in the previous step.
+
+```
 $ sudo touch /etc/authbind/byuid/<uid>
+$ sudo nano /etc/authbind/byuid/<uid>
+```
 
-sudo vi /etc/authbind/byuid/<uid>
-28. Edit the file from the step above and paste in the following:
-0.0.0.0/0:1,1023
+Edit the file from the step above and paste `0.0.0.0/0:1,1023`
 
-Change owner and access permissions of /etc/authbind/byuid/
-<uid>:
+Change owner and access permissions of /etc/authbind/byuid/<uid>:
+
+```
 $ sudo chown tomcat8.5:tomcat8.5 /etc/authbind/byuid/<uid>
 $ sudo chmod 700 /etc/authbind/byuid/<uid>
-30. Modify $CATALINA_HOME/bin/startup.sh to always use authbind:
-sudo vi $CATALINA_HOME/bin/startup.sh
-Comment the following in the file:
-#exec "$PRGDIR"/"$EXECUTABLE" start "$@"
-  
-exec authbind --deep "$PRGDIR"/"$EXECUTABLE" start "$@"
+```
 
-## 
+Modify $CATALINA_HOME/bin/startup.sh to always use authbind:
+
+```
+sudo nano $CATALINA_HOME/bin/startup.sh
+```
+Comment the line in the file: `#exec "$PRGDIR"/"$EXECUTABLE" start "$@"` and add the line `exec authbind --deep "$PRGDIR"/"$EXECUTABLE" start "$@"`
+
+## Create tomcat8.5 file in init.d
+
+```
 sudo touch /etc/init.d/tomcat8.5
-33. Edit the file and enter the following contents:
-$ sudo vi /etc/init.d/tomcat8.5
+```
 
+Edit the file and enter the following contents 
+
+```
+$ sudo nano /etc/init.d/tomcat8.5
+```
+
+```shell
 CATALINA_HOME=/usr/share/tomcat8.5/8.5
 case $1 in
 start)
@@ -161,32 +201,43 @@ restart)
 ;;
 esac
 exit 0
+```
+Change access permissions to `tomcat8.5` file and add symbolic links,
 
-## 
-sudo chmod 755 /etc/init.d/tomcat8.5
+```shell
+$ sudo chmod 755 /etc/init.d/tomcat8.5
 $ sudo ln -s /etc/init.d/tomcat8.5 /etc/rc1.d/K99tomcat
 $ sudo ln -s /etc/init.d/tomcat8.5 /etc/rc2.d/S99tomcat
+```
 
---Pending--
-## Set up Tomcat as a service to start on boot. First, build JSVC:
-sudo apt-get install gcc
+## Set up Tomcat as a service to start on boot. 
+
+First, build JSVC,
+
+```
+$ sudo apt-get install gcc
 $ cd /usr/share/tomcat8.5/8.5/bin/
 $ sudo tar xvfz commons-daemon-native.tar.gz
 $ cd commons-daemon-*-native-src/unix
 $ sudo ./configure --with-java=$JAVA_HOME
 $ sudo apt-get install make
-
-sudo make
+$ sudo make
 $ sudo cp jsvc ../..
-37. Create the Tomcat service file:
+```
+
+Create the Tomcat service file
+
+```
 sudo touch /etc/systemd/system/tomcat8.5.service
-38. Open /etc/systemd/system/tomcat8.5.service in a text editor
-(as root):
-sudo vi /etc/systemd/system/tomcat8.5.service
-39. Paste the following in the Tomcat service file:
+sudo nano /etc/systemd/system/tomcat8.5.service
+```
+Paste the following in the Tomcat service file:
+
+```shell
 [Unit]
 Description=Apache Tomcat Web Application Container
 After=network.target
+
 [Service]
 Type=forking
 PIDFile=/var/run/tomcat.pid
@@ -195,34 +246,192 @@ Environment=JAVA_HOME=/usr/lib/jvm/jdk1.8.0_xxx
 Environment=CATALINA_HOME=/usr/share/tomcat8.5/8.5.xx
 Environment=CATALINA_BASE=/usr/share/tomcat8.5/8.5.xx
 Environment=CATALINA_OPTS=
-ExecStart=/usr/share/tomcat8.5/8.5.xx/bin/jsvc \
--Dcatalina.home=${CATALINA_HOME} \
--Dcatalina.base=${CATALINA_BASE} \
--Djava.awt.headless=true -Djava.net.
-preferIPv4Stack=true -Dserver -Dd64 -XX:+UseNUMA \
--XX:+UseG1GC -Dfile.encoding=UTF-8 \
--Djava.library.path=${CATALINA_BASE}/webapps/
-Thingworx/WEB-INF/extensions \
--cp ${CATALINA_HOME}/bin/commons-daemon.jar:
-${CATALINA_HOME}/bin/bootstrap.jar:${CATALINA_HOME}/bin/tomcat-juli.jar \
--user tomcat8.5 \
--java-home ${JAVA_HOME} \
--pidfile /var/run/tomcat.pid \
--errfile ${CATALINA_HOME}/logs/catalina.out \
--outfile ${CATALINA_HOME}/logs/catalina.out \
-$CATALINA_OPTS \
-org.apache.catalina.startup.Bootstrap
+
+ExecStart=/usr/share/tomcat8.5/8.5.xx/bin/jsvc -Dcatalina.home=${CATALINA_HOME} -Dcatalina.base=${CATALINA_BASE} -java.awt.headless=true -Djava.net.preferIPv4Stack=true -Dserver -Dd64 -XX:+UseNUMA -XX:+UseG1GC -Dfile.encoding=UTF-8 -Djava.library.path=${CATALINA_BASE}/webapps/Thingworx/WEB-INF/extensions -cp ${CATALINA_HOME}/bin/commons-daemon.jar:${CATALINA_HOME}/bin/bootstrap.jar:${CATALINA_HOME}/bin/tomcat-juli.jar -user tomcat8.5 -java-home ${JAVA_HOME} -pidfile /var/run/tomcat.pid -errfile ${CATALINA_HOME}/logs/catalina.out -outfile ${CATALINA_HOME}/logs/catalina.out $CATALINA_OPTS org.apache.catalina.startup.Bootstrap
+
 [Install]
 WantedBy=multi-user.target
+```
 
-## Create a new file in the tomcat /bin file named setenv.sh:
+Create a new file in the tomcat `/bin` file named `setenv.sh`:
+
+```
 cd $CATALINA_HOME/bin
 sudo touch setenv.sh
-sudo vi setenv.sh
+sudo nano setenv.sh
+```
+Paste the following content,
+
+```
+CATALINA_OPTS="$CATALINA_OPTS -Djava.library.path=/usr/share/tomcat8.5/8.5.xx/
+webapps/Thingworx/WEB-INF/extensions"
+```
+## Install PostgresSQL
+
+Add the repoistory URL for PostgresSQL to apt-get sources,
+
+```
+echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+
+sudo wget -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install postgresql-9.6 -y
+```
+> Install pgadmin to your host machine, e.g. Windows to access the DB. 
+
+Setup password for PostgresSQL user (postgres),
+
+```
+sudo service postgresql restart
+```
+```sql
+sudo -u postgres psql -c "ALTER ROLE postgres WITH password 'postgres'"
+```
+```
+sudo service postgresql restart
+```
+Create user `twadmin` for Thingworx usage,
+
+```sql
+sudo -u postgres psql -c "CREATE USER twadmin WITH PASSWORD 'password';"
+```
+
+Configure and Execute the PostgresSQL Database script,
+```
+sudo mkdir /ThingworxPostgresqlStorage
+sudo chown postgres:postgres /ThingworxPostgresqlStorage
+sudo chmod 755 /ThingworxPostgresqlStorage
+```
+Download Thingworx sotware download package from [here](https://support.ptc.com/appserver/auth/it/esd/product.jsp?prodFamily=TWX), Choose version 8.4 > ThingWorx PostgreSQL > ThingWorx-Platform-Postgres-8-4-5
+
+Copy the downloaded file to `/ThingworxPostgresqlStorage/` folder, and then unzip it.
+
+```
+$ cd /ThingworxPostgresqlStorage/
+$ unzip MED-61111-CD-084_SP5_ThingWorx-Platform-Postgres-8-4-5.zip 
+$ cd install 
+```
+to seup tablespace run the following command,
+
+```
+sudo sh thingworxPostgresDBSetup.sh -a postgres -u twadmin -l /ThingworxPostgresqlStorage
+```
+Setup required TWX schemas, Run `thingworxPostgresSchemaSetup.sh` script,
+
+```
+sudo sh thingworxPostgresSchemaSetup.sh
+```
+
+## Install Thingworx,
+First create the required directories and give permissions,
+
+```
+$ sudo mkdir /ThingworxStorage /ThingworxBackupStorage /ThingworxPlatform
+$ sudo chown tomcat8.5:tomcat8.5 /ThingworxStorage /ThingworxBackupStorage /ThingworxPlatform
+$ sudo chmod 775 /ThingworxStorage /ThingworxBackupStorage /ThingworxPlatform
+```
+
+Create `platform-settings.json` file inside `ThingworxPlatform` folder and paste the content below,
+
+```
+$ sudo nano /ThingworxPlatform/platform-settings.json
+```
+
+```json
+{
+	"PlatformSettingsConfig": {
+		"BasicSettings": {
+			"BackupStorage": "/ThingworxBackupStorage",
+			"DatabaseLogRetentionPolicy": 7,
+			"EnableBackup": true,
+			"EnableHA": false,
+			"EnableSystemLogging": false,
+			"EnableSSO": false,
+			"FileRepositoryRoot": "/ThingworxStorage",
+			"HTTPRequestHeaderMaxLength": 2000,
+			"HTTPRequestParameterMaxLength": 2000,
+			"InternalAesCryptographicKeyLength": 128,
+			"Storage": "/ThingworxStorage"
+		},
+		"AdministratorUserSettings": {
+			"InitialPassword": "helloworld"
+		},
+		"ContentTypeSettings": {
+			"supportedMediaEntityContentTypes": ["image/svg+xml", "image/png", "image/gif ", "image / bmp ", "image / jpeg ", "application / pdf ", "image / vnd.microsoft.icon "]
+		},
+		"ExtensionPackageImportPolicy": {
+			"importEnabled": true,
+			"allowJarResources": true,
+			"allowJavascriptResources": true,
+			"allowCSSResources": true,
+			"allowJSONResources": true,
+			"allowWebAppResources": true,
+			"allowEntities": true,
+			"allowExtensibleEntities": true
+		},
+		"LicensingConnectionSettings": {
+			"username": "<username>",
+			"password": "<password>",
+			"timeout": "60"
+		}
+	},
+	"PostgresPersistenceProviderPackage": {
+		"ConnectionInformation": {
+			"acquireIncrement": 5,
+			"acquireRetryAttempts": 3,
+			"acquireRetryDelay": 10000,
+			"checkoutTimeout": 1000000,
+			"driverClass": "org.postgresql.Driver",
+			"fetchSize": 5000,
+			"idleConnectionTestPeriod": 60,
+			"initialPoolSize": 5,
+			"jdbcUrl": "jdbc:postgresql://localhost:5432/thingworx",
+			"maxConnectionAge": 0,
+			"maxIdleTime": 0,
+			"maxIdleTimeExcessConnections": 300,
+			"maxPoolSize": 100,
+			"maxStatements": 100,
+			"minPoolSize": 5,
+			"numHelperThreads": 8,
+			"password": "password",
+			"testConnectionOnCheckout": false,
+			"unreturnedConnectionTimeout": 0,
+			"username": "twadmin"
+		},
+		"StreamProcessorSettings": {
+			"maximumBlockSize": 2500,
+			"maximumQueueSize": 250000,
+			"maximumWaitTime": 10000,
+			"numberOfProcessingThreads": 5,
+			"scanRate": 5,
+			"sizeThreshold": 1000
+		},
+		"ValueStreamProcessorSettings": {
+			"maximumBlockSize": 2500,
+			"maximumQueueSize": 500000,
+			"maximumWaitTime": 10000,
+			"numberOfProcessingThreads": 5,
+			"scanRate": 5,
+			"sizeThreshold": 1000
+		},
+		"PersistentPropertyProcessorSettings": {
+			"maximumBlockSize": 2500,
+			"maximumWaitTime": 1000,
+			"maximumQueueSize": 100000,
+			"numberOfProcessingThreads": 20,
+			"scanRate": 25,
+			"sizeThreshold": 1000
+		}
+	}
+}
+```
+Copy the thingworx.war file to webapps folder inside tomcat, Located inside the zip file downloaded earlier from PTC website.
+
+```
+sudo mv Thingworx.war $CATALINA_HOME/webapps
+sudo chown tomcat8.5:tomcat8.5 $CATALINA_HOME/webapps/Thingworx.war
+sudo chmod 775 $CATALINA_HOME/webapps/Thingworx.war
+```
 
 
-
-
-
-https://support.ptc.com/help/thingworx_hc/thingworx_8_hc/en/index.html#page/ThingWorx%2FHelp%2FGetting_Started%2FInstallingandUpgrading%2FInstallation%2Finstall_java_and_apache_tomcat__ubuntu_.html%23
-https://www.ptc.com/support/-/media/52CCDE621448456ABB31E6C727E0C1B8.pdf?sc_lang=en
+Detailed document by PTC: [Download](https://www.ptc.com/support/-/media/52CCDE621448456ABB31E6C727E0C1B8.pdf?sc_lang=en)
