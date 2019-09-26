@@ -242,12 +242,25 @@ After=network.target
 Type=forking
 PIDFile=/var/run/tomcat.pid
 Environment=CATALINA_PID=/var/run/tomcat.pid
-Environment=JAVA_HOME=/usr/lib/jvm/jdk1.8.0_xxx
-Environment=CATALINA_HOME=/usr/share/tomcat8.5/8.5.xx
-Environment=CATALINA_BASE=/usr/share/tomcat8.5/8.5.xx
+Environment=JAVA_HOME=/usr/lib/jvm/jdk1.8.0_131
+Environment=CATALINA_HOME=/usr/share/tomcat8.5/8.5
+Environment=CATALINA_BASE=/usr/share/tomcat8.5/8.5
 Environment=CATALINA_OPTS=
 
-ExecStart=/usr/share/tomcat8.5/8.5.xx/bin/jsvc -Dcatalina.home=${CATALINA_HOME} -Dcatalina.base=${CATALINA_BASE} -java.awt.headless=true -Djava.net.preferIPv4Stack=true -Dserver -Dd64 -XX:+UseNUMA -XX:+UseG1GC -Dfile.encoding=UTF-8 -Djava.library.path=${CATALINA_BASE}/webapps/Thingworx/WEB-INF/extensions -cp ${CATALINA_HOME}/bin/commons-daemon.jar:${CATALINA_HOME}/bin/bootstrap.jar:${CATALINA_HOME}/bin/tomcat-juli.jar -user tomcat8.5 -java-home ${JAVA_HOME} -pidfile /var/run/tomcat.pid -errfile ${CATALINA_HOME}/logs/catalina.out -outfile ${CATALINA_HOME}/logs/catalina.out $CATALINA_OPTS org.apache.catalina.startup.Bootstrap
+ExecStart=/usr/share/tomcat8.5/8.5/bin/jsvc \
+		      -Dcatalina.home=${CATALINA_HOME} \
+		      -Dcatalina.base=${CATALINA_BASE} \
+		      -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Dserver -Dd64 -XX:+UseNUMA \
+		      -XX:+UseG1GC -Dfile.encoding=UTF-8 \
+		      -Djava.library.path=${CATALINA_BASE}/webapps/Thingworx/WEB-INF/extensions \
+		      -cp ${CATALINA_HOME}/bin/commons-daemon.jar:${CATALINA_HOME}/bin/bootstrap.jar:${CATALINA_HOME}/bin/tomcat-juli.jar \
+		      -user tomcat8.5 \
+		      -java-home ${JAVA_HOME} \
+		      -pidfile /var/run/tomcat.pid \
+		      -errfile ${CATALINA_HOME}/logs/catalina.out \
+		      -outfile ${CATALINA_HOME}/logs/catalina.out \
+		      $CATALINA_OPTS \
+		      org.apache.catalina.startup.Bootstrap
 
 [Install]
 WantedBy=multi-user.target
