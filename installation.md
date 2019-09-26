@@ -411,5 +411,14 @@ sudo chown tomcat8.5:tomcat8.5 $CATALINA_HOME/webapps/Thingworx.war
 sudo chmod 775 $CATALINA_HOME/webapps/Thingworx.war
 ```
 
+## All Done
+
+Now let's start the server, to do so invoke the following command,
+
+```shell
+$ sudo service tomcat8.5 start
+```
+
+Now TWX Composer can be accessed using the URL `http://<machine_ip>:8080/Thingworx/Composer/index.html`
 
 Detailed document by PTC: [Download](https://www.ptc.com/support/-/media/52CCDE621448456ABB31E6C727E0C1B8.pdf?sc_lang=en)
