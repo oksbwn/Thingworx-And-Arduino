@@ -334,7 +334,26 @@ Setup required TWX schemas, Run `thingworxPostgresSchemaSetup.sh` script,
 ```
 sudo sh thingworxPostgresSchemaSetup.sh
 ```
+Config PostgresSQL,
+```
+sudo nano /etc/postgresql/9.6/main/pg_hba.conf 
+```
+Add the following line to the file,
 
+```shell
+host    all             all             0.0.0.0/0               md5
+```
+
+Then edit `postgresql.conf` file,
+
+```
+sudo nano /etc/postgresql/9.6/main/postgresql.conf
+```
+Uncomment `listen_addresses 'localhost'` and chnage `localhost` to `*`. Then restart,
+
+```
+sudo service postgresql restart
+```
 ## Install Thingworx,
 First create the required directories and give permissions,
 
