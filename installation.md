@@ -371,25 +371,13 @@ $ sudo nano /ThingworxPlatform/platform-settings.json
 
 ```json
 {
-	"PlatformSettingsConfig": {
+"PlatformSettingsConfig": {
 		"BasicSettings": {
-			"BackupStorage": "/ThingworxBackupStorage",
-			"DatabaseLogRetentionPolicy": 7,
-			"EnableBackup": true,
-			"EnableHA": false,
-			"EnableSystemLogging": false,
-			"EnableSSO": false,
-			"FileRepositoryRoot": "/ThingworxStorage",
-			"HTTPRequestHeaderMaxLength": 2000,
-			"HTTPRequestParameterMaxLength": 2000,
-			"InternalAesCryptographicKeyLength": 128,
-			"Storage": "/ThingworxStorage"
+			"HTTPRequestHeaderMaxLength": 10000,
+			"HTTPRequestParameterMaxLength": 10000
 		},
 		"AdministratorUserSettings": {
-			"InitialPassword": "helloworld"
-		},
-		"ContentTypeSettings": {
-			"supportedMediaEntityContentTypes": ["image/svg+xml", "image/png", "image/gif ", "image / bmp ", "image / jpeg ", "application / pdf ", "image / vnd.microsoft.icon "]
+			"InitialPassword": "trUf6yuz2?_Gub"
 		},
 		"ExtensionPackageImportPolicy": {
 			"importEnabled": true,
@@ -400,59 +388,17 @@ $ sudo nano /ThingworxPlatform/platform-settings.json
 			"allowWebAppResources": true,
 			"allowEntities": true,
 			"allowExtensibleEntities": true
-		},
-		"LicensingConnectionSettings": {
-			"username": "<username>",
-			"password": "<password>",
-			"timeout": "60"
 		}
 	},
-	"PostgresPersistenceProviderPackage": {
-		"ConnectionInformation": {
-			"acquireIncrement": 5,
-			"acquireRetryAttempts": 3,
-			"acquireRetryDelay": 10000,
-			"checkoutTimeout": 1000000,
-			"driverClass": "org.postgresql.Driver",
-			"fetchSize": 5000,
-			"idleConnectionTestPeriod": 60,
-			"initialPoolSize": 5,
-			"jdbcUrl": "jdbc:postgresql://localhost:5432/thingworx",
-			"maxConnectionAge": 0,
-			"maxIdleTime": 0,
-			"maxIdleTimeExcessConnections": 300,
-			"maxPoolSize": 100,
-			"maxStatements": 100,
-			"minPoolSize": 5,
-			"numHelperThreads": 8,
-			"password": "password",
-			"testConnectionOnCheckout": false,
-			"unreturnedConnectionTimeout": 0,
-			"username": "twadmin"
-		},
-		"StreamProcessorSettings": {
-			"maximumBlockSize": 2500,
-			"maximumQueueSize": 250000,
-			"maximumWaitTime": 10000,
-			"numberOfProcessingThreads": 5,
-			"scanRate": 5,
-			"sizeThreshold": 1000
-		},
-		"ValueStreamProcessorSettings": {
-			"maximumBlockSize": 2500,
-			"maximumQueueSize": 500000,
-			"maximumWaitTime": 10000,
-			"numberOfProcessingThreads": 5,
-			"scanRate": 5,
-			"sizeThreshold": 1000
-		},
-		"PersistentPropertyProcessorSettings": {
-			"maximumBlockSize": 2500,
-			"maximumWaitTime": 1000,
-			"maximumQueueSize": 100000,
-			"numberOfProcessingThreads": 20,
-			"scanRate": 25,
-			"sizeThreshold": 1000
+	"PersistenceProviderPackageConfigs": {
+		"PostgresPersistenceProviderPackage": {
+			"ConnectionInformation": {
+				"jdbcUrl": "jdbc:postgresql://localhost:5432/thingworx",
+				"password": "password",
+				"username": "twadmin",
+				"maxPoolSize": "5000",
+				"minPoolSize": "100"
+			}
 		}
 	}
 }
