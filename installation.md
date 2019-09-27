@@ -317,10 +317,12 @@ sudo chmod 755 /ThingworxPostgresqlStorage
 ```
 Download Thingworx sotware download package from [here](https://support.ptc.com/appserver/auth/it/esd/product.jsp?prodFamily=TWX), Choose version 8.4 > ThingWorx PostgreSQL > ThingWorx-Platform-Postgres-8-4-5
 
-Copy the downloaded file to `/ThingworxPostgresqlStorage/` folder, and then unzip it.
+> You might need to login to PTC to download
+
+Copy the downloaded file to `home/user/<username>/Desktop` folder, and then unzip it.
 
 ```
-$ cd /ThingworxPostgresqlStorage/
+$ cd home/user/<username>/Desktop
 $ unzip MED-61111-CD-084_SP5_ThingWorx-Platform-Postgres-8-4-5.zip 
 $ cd install 
 ```
@@ -349,7 +351,7 @@ Then edit `postgresql.conf` file,
 ```
 sudo nano /etc/postgresql/9.6/main/postgresql.conf
 ```
-Uncomment `listen_addresses 'localhost'` and chnage `localhost` to `*`. Then restart,
+Uncomment `listen_addresses 'localhost'` and chnage `localhost` to `'*'`. Then restart,
 
 ```
 sudo service postgresql restart
@@ -411,7 +413,7 @@ sudo chown tomcat8.5:tomcat8.5 $CATALINA_HOME/webapps/Thingworx.war
 sudo chmod 775 $CATALINA_HOME/webapps/Thingworx.war
 ```
 
-## All Done
+## All Done, Hurrey !!
 
 Now let's start the server, to do so invoke the following command,
 
