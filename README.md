@@ -1,4 +1,4 @@
-### Thingworx Workshop @ITC
+## Index
 
 | Topic | Link |
 |--------|-------------|
